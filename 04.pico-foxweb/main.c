@@ -1,24 +1,29 @@
 #include "httpd.h"
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <syslog.h>
+#include <stdlib.h>
+#include "logger.h"
 
 #define CHUNK_SIZE 1024 // read 1024 bytes at a time
 
 // Public directory settings
-#define PUBLIC_DIR "./webroot"
+#define PUBLIC_DIR_DEFAULT "./webroot"
 #define INDEX_HTML "/index.html"
 #define NOT_FOUND_HTML "/404.html"
 
+char* PUBLIC_DIR = PUBLIC_DIR_DEFAULT;
+
 int main(int c, char **v) {
-  char *port = c == 1 ? "8000" : v[1];
+  char *port = c == 1 ? "8000" : v[2];
+  PUBLIC_DIR = v[4];
   serve_forever(port);
   return 0;
 }
 
 int file_exists(const char *file_name) {
-  struct stat buffer;
   int exists;
-
-  exists = (stat(file_name, &buffer) == 0);
+  exists = (open(file_name, O_RDONLY) != -1);
 
   return exists;
 }
@@ -45,7 +50,8 @@ void route() {
   ROUTE_START()
 
   GET("/") {
-    char index_html[20];
+    char *index_html;
+    index_html = malloc(strlen(PUBLIC_DIR) + strlen(INDEX_HTML));
     sprintf(index_html, "%s%s", PUBLIC_DIR, INDEX_HTML);
 
     HTTP_200;
@@ -54,6 +60,8 @@ void route() {
     } else {
       printf("Hello! You are using %s\n\n", request_header("User-Agent"));
     }
+    free(index_html);
+    log_request(200);
   }
 
   GET("/test") {
@@ -66,6 +74,7 @@ void route() {
       printf("%s: %s\n", h->name, h->value);
       h++;
     }
+    log_request(200);
   }
 
   POST("/") {
@@ -74,21 +83,26 @@ void route() {
     printf("Fetch the data using `payload` variable.\n");
     if (payload_size > 0)
       printf("Request body: %s", payload);
+    log_request(201);
   }
 
   GET(uri) {
-    char file_name[255];
+    char *file_name;
+    file_name = malloc(strlen(PUBLIC_DIR) + strlen(uri));
     sprintf(file_name, "%s%s", PUBLIC_DIR, uri);
 
     if (file_exists(file_name)) {
       HTTP_200;
       read_file(file_name);
+      log_request(200);
     } else {
       HTTP_404;
       sprintf(file_name, "%s%s", PUBLIC_DIR, NOT_FOUND_HTML);
       if (file_exists(file_name))
         read_file(file_name);
+      log_request(404);
     }
+    free(file_name);
   }
 
   ROUTE_END()

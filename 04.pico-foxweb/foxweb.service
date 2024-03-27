@@ -1,0 +1,12 @@
+[Unit]
+Description=Foxweb WWW Service
+After=network.target 
+
+[Service]
+ExecStart=/usr/local/sbin/PICOFoxweb -p 8080 -r /var/www/foxweb/webroot
+KillMode=process
+User=foxweb
+Group=foxweb
+
+[Install]
+WantedBy=multi-user.target

@@ -1,2 +1,2 @@
-# pbps
-Public repo for PBPS course (HSSE IKNT SPBPU) 
+# Курсовая работа
+Код проекта находится в папке `02.simple`

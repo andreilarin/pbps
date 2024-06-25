@@ -1,0 +1,1 @@
+int pam_authenticate_user(const char *username);

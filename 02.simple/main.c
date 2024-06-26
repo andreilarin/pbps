@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 static SSL_CTX *get_server_context(const char *ca_pem, const char *cert_pem, const char *key_pem) {
 	SSL_CTX *ctx;
 	/* Формирование контекста с параметрами по-умолчанию */
-	if (!(ctx = SSL_CTX_new(SSLv23_server_method()))) {
+	if (!(ctx = SSL_CTX_new(TLS_server_method()))) {
 		fprintf(stderr, "Ошибка SSL_CTX_new\n");
 		return NULL;
 	}
@@ -265,7 +265,7 @@ void respond(int n, SSL* ssl)
 	if (rcvd<0)    // receive error
 		fprintf(stderr,("recv() error\n"));
 	else if (rcvd==0)    // receive socket closed
-		fprintf(stderr,"Client disconnected upexpectedly.\n");
+		fprintf(stderr,"Client disconnected unexpectedly.\n");
 	else    // message received
 	{
 		printf("%s", mesg);

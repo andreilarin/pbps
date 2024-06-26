@@ -23,5 +23,6 @@ sudo bash script.sh install
 
 ~~~
 ./HTTPSimple -p 8080 -r webroot
+sudo curl -k --cert /var/www/simple/keys/client/client_cert.pem --key /var/www/simple/keys/client/client_key.pem https://localhost:8080
 ~~~
 

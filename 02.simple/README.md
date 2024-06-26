@@ -16,7 +16,7 @@
 - Сборка
 
 ~~~
-make HTTPSimple
+sudo bash script.sh install
 ~~~
 
 - Запуск

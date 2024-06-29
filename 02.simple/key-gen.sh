@@ -1,6 +1,8 @@
-echo "-----------------Генерация сертификатов и ключей CA-----------------"
+echo "Генерация сертификатов и ключей CA"
 
-SUBJ_CA="/C=RU/ST=./L=./O=./OU=./CN=MyRootCA"
+USER_NAME=$1
+
+SUBJ_CA="/C=RU/ST=./L=./O=./OU=./CN=ca_cert"
 
 mkdir -p keys/ca keys/server keys/server/private keys/client
 
@@ -8,9 +10,9 @@ openssl genrsa -out keys/ca/ca_key.pem 2048
 
 openssl req -new -x509 -key keys/ca/ca_key.pem -out keys/ca/ca_cert.pem -days 365 -subj $SUBJ_CA
 
-echo "-----------------Генерация сертификатов и ключей сервера-----------------"
+echo "Генерация сертификатов и ключей сервера"
 
-SUBJ_SERVER="/C=RU/ST=./L=./O=./OU=./CN=Server"
+SUBJ_SERVER="/C=RU/ST=./L=./O=./OU=./CN=server_cert"
 
 openssl genrsa -out keys/server/private/server_key.pem 2048
 
@@ -21,10 +23,10 @@ openssl x509 -req -in keys/server/private/server_csr.pem -CA keys/ca/ca_cert.pem
 openssl verify -CAfile keys/ca/ca_cert.pem keys/server/server_cert.pem
 
 echo
-echo "-----------------Сертификаты и ключи сервера созданы, генерация сертификата и ключа клиента-----------------"
+echo "Сертификаты и ключи сервера созданы, генерация сертификата и ключа клиента"
 echo
 
-SUBJ_CLIENT="/C=RU/ST=./L=./O=./OU=./CN=simple"
+SUBJ_CLIENT="/C=RU/ST=./L=./O=./OU=./CN=$USER_NAME"
 
 openssl genrsa -out keys/client/client_key.pem 2048
 
@@ -35,4 +37,4 @@ openssl x509 -req -in keys/client/client_csr.pem -CA keys/ca/ca_cert.pem -CAkey 
 openssl verify -CAfile keys/ca/ca_cert.pem keys/client/client_cert.pem
 
 echo
-echo "-----------------Сертификат и ключ клиента созданы-----------------"
+echo "Сертификат и ключ клиента созданы"

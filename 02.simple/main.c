@@ -222,7 +222,7 @@ void respond(int n, SSL* ssl)
 	if (client_cert) {
 		// Получение информации о сертификате
 		char *subject = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-		printf("Client certificate subject: %s\n", subject);
+		printf("Объект сертификата пользователя: %s\n", subject);
 
 		// Получаем CN из сертификата для аутентификации пользователя
 		char *cn = NULL;
@@ -235,7 +235,7 @@ void respond(int n, SSL* ssl)
 		}
 
 		if (cn) {
-			printf("Client CN: %s\n", cn);
+			printf("CN клиента: %s\n", cn);
 			if (pam_authenticate_user(cn) != 0) {
 				fprintf(stderr, "Authentication failed for user: %s\n", cn);
 				SSL_write(ssl, "HTTP/1.0 403 Forbidden\n", 23);
@@ -292,16 +292,12 @@ void respond(int n, SSL* ssl)
 
 				if ( (fd=open(path, O_RDONLY))!=-1 )    //FILE FOUND
 				{
-					//send(clients[n], "HTTP/1.0 200 OK\n\n", 17, 0);
 					SSL_write(ssl, "HTTP/1.0 200 OK\n\n", 17);
 					while ( (bytes_read=read(fd, data_to_send, BYTES))>0 )
-						//write (clients[n], data_to_send, bytes_read);
 						SSL_write (ssl, data_to_send, bytes_read);
 				}
 				else    
 					SSL_write(ssl, "HTTP/1.0 404 Not Found\n", 23); 
-					//write(clients[n], "HTTP/1.0 404 Not Found\n", 23); 
-					//FILE NOT FOUND
 			}
 		}
 	}

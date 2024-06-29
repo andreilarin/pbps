@@ -19,20 +19,20 @@ HTTPSimple() {
 
 pam() {
   cat >> /etc/pam.d/check_user << EOF
-
-  auth       required     pam_unix.so
-  account    required     pam_unix.so
+auth       required     pam_unix.so
+account    required     pam_unix.so
 EOF
 }
 
 install() {
   HTTPSimple
-  useradd -c "$BIN_DIR user" -r -s /sbin/nologin -d $WORK_DIR $USER_NAME
+  useradd -c "$BIN_DIR user" -r -d $WORK_DIR $USER_NAME
+  echo "$USER_NAME:HTTPS1mple" | chpasswd
   command install -o root -g root -m 0755 $BIN_DIR /usr/local/sbin/
   command install -o root -g root -m 0644 $SERVICE_NAME /etc/systemd/system/
   mkdir -p $WORK_DIR
   cp -r webroot -t $WORK_DIR/
-  bash key-gen.sh
+  bash key-gen.sh $USER_NAME
   cp -r keys -t $WORK_DIR/
   chown -R $USER_NAME:$USER_NAME $WORK_DIR
   rm -f ./$BIN_DIR

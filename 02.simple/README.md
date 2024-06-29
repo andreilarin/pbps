@@ -12,6 +12,6 @@ sudo bash script.sh install
 - Тестирование
 
 ~~~
-sudo curl -k --cert /var/www/simple/keys/client/client_cert.pem --key /var/www/simple/keys/client/client_key.pem https://localhost:8080
+sudo curl -k --cert /var/www/simple/keys/client/client_cert.pem --key /var/www/simple/keys/client/client_key.pem --cacert /var/www/simple/keys/ca/ca_cert.pem https://localhost:8080
 ~~~
 

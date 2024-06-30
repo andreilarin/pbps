@@ -1,6 +1,7 @@
 echo "Генерация сертификатов и ключей CA"
 
 USER_NAME=$1
+USER_PASSWORD=$2
 
 SUBJ_CA="/C=RU/ST=./L=./O=./OU=./CN=ca_cert"
 
@@ -26,7 +27,7 @@ echo
 echo "Сертификаты и ключи сервера созданы, генерация сертификата и ключа клиента"
 echo
 
-SUBJ_CLIENT="/C=RU/ST=./L=./O=./OU=./CN=$USER_NAME"
+SUBJ_CLIENT="/C=RU/ST=./L=./O=./OU=./CN=$USER_NAME/userPassword=$USER_PASSWORD"
 
 openssl genrsa -out keys/client/client_key.pem 2048
 

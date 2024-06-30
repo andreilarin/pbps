@@ -222,22 +222,29 @@ void respond(int n, SSL* ssl)
 	if (client_cert) {
 		// Получение информации о сертификате
 		char *subject = X509_NAME_oneline(X509_get_subject_name(client_cert), 0, 0);
-		printf("Объект сертификата пользователя: %s\n", subject);
 
-		// Получаем CN из сертификата для аутентификации пользователя
-		char *cn = NULL;
+		// Получаем commonName и userPassword из сертификата для аутентификации пользователя
+		char *commonName = NULL;
+		char *userPassword = NULL;
 		X509_NAME *name = X509_get_subject_name(client_cert);
 		int lastpos = -1;
 		while ((lastpos = X509_NAME_get_index_by_NID(name, NID_commonName, lastpos)) != -1) {
 			X509_NAME_ENTRY *e = X509_NAME_get_entry(name, lastpos);
 			ASN1_STRING *d = X509_NAME_ENTRY_get_data(e);
-			cn = (char *) ASN1_STRING_data(d);
+			commonName = (char *) ASN1_STRING_get0_data(d);
 		}
 
-		if (cn) {
-			printf("CN клиента: %s\n", cn);
-			if (pam_authenticate_user(cn) != 0) {
-				fprintf(stderr, "Authentication failed for user: %s\n", cn);
+    lastpos = -1;
+    while ((lastpos = X509_NAME_get_index_by_NID(name, NID_userPassword, lastpos)) != -1) {
+			X509_NAME_ENTRY *e = X509_NAME_get_entry(name, lastpos);
+			ASN1_STRING *d = X509_NAME_ENTRY_get_data(e);
+			userPassword = (char *)ASN1_STRING_get0_data(d);
+    }
+
+		if (commonName && userPassword) {
+			printf("CN клиента: %s\n", commonName);
+			if (pam_authenticate_user(commonName, userPassword) != 0) {
+				fprintf(stderr, "Authentication failed for user: %s\n", commonName);
 				SSL_write(ssl, "HTTP/1.0 403 Forbidden\n", 23);
 				X509_free(client_cert);
 				return;

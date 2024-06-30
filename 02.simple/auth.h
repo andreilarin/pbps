@@ -1,1 +1,1 @@
-int pam_authenticate_user(const char *username);
+int pam_authenticate_user(const char *username, const char *password);

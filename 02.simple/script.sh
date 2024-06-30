@@ -1,4 +1,5 @@
 USER_NAME=simple
+USER_PASSWORD=HTTPS1mple
 BIN_DIR=HTTPSimple
 WORK_DIR=/var/www/simple
 SERVICE_NAME=simple.service
@@ -19,25 +20,32 @@ HTTPSimple() {
 
 pam() {
   cat >> /etc/pam.d/check_user << EOF
-auth       required     pam_unix.so
-account    required     pam_unix.so
+auth      required  pam_unix.so shadow
+account   required  pam_unix.so
 EOF
 }
 
 install() {
   HTTPSimple
+
   useradd -c "$BIN_DIR user" -r -d $WORK_DIR $USER_NAME
-  echo "$USER_NAME:HTTPS1mple" | chpasswd
+  echo "$USER_NAME:$USER_PASSWORD" | chpasswd
+
   command install -o root -g root -m 0755 $BIN_DIR /usr/local/sbin/
   command install -o root -g root -m 0644 $SERVICE_NAME /etc/systemd/system/
+
   mkdir -p $WORK_DIR
   cp -r webroot -t $WORK_DIR/
-  bash key-gen.sh $USER_NAME
+
+  bash key-gen.sh $USER_NAME $USER_PASSWORD
   cp -r keys -t $WORK_DIR/
+
   chown -R $USER_NAME:$USER_NAME $WORK_DIR
+
   rm -f ./$BIN_DIR
   rm -rf keys
   rm -f main.o auth.o
+
   pam
   systemctl daemon-reload
   systemctl restart $SERVICE_NAME
